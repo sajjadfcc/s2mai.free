@@ -1,15 +1,14 @@
 
 import { GoogleGenAI, Type } from "@google/genai";
-import { StoryResponse } from "../types";
-
-// Always initialize GoogleGenAI with process.env.API_KEY directly as per the coding guidelines.
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+import { StoryResponse, AspectRatio } from "../types";
 
 export const generatePrompts = async (
   story: string,
   sceneCount: number,
   existingPromptsCount: number = 0
 ): Promise<StoryResponse> => {
+  // Initialize AI right before the call
+  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
   const isAddition = existingPromptsCount > 0;
   
   const systemInstruction = `
@@ -63,7 +62,9 @@ export const generatePrompts = async (
   return JSON.parse(text) as StoryResponse;
 };
 
-export const generateImage = async (prompt: string): Promise<string> => {
+export const generateImage = async (prompt: string, aspectRatio: AspectRatio): Promise<string> => {
+  // Initialize AI right before the call
+  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
   const response = await ai.models.generateContent({
     model: 'gemini-2.5-flash-image',
     contents: {
@@ -73,7 +74,7 @@ export const generateImage = async (prompt: string): Promise<string> => {
     },
     config: {
       imageConfig: {
-        aspectRatio: "16:9"
+        aspectRatio: aspectRatio
       }
     }
   });
@@ -85,5 +86,5 @@ export const generateImage = async (prompt: string): Promise<string> => {
     }
   }
 
-  throw new Error("Failed to generate image");
+  throw new Error("Failed to generate image. Please try again.");
 };
